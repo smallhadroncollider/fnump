@@ -13,6 +13,7 @@
 
 - Should show changes before making them
 - Support different number formats
+- Update references in a given file
 
 ## Done
 
