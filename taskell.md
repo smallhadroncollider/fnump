@@ -1,6 +1,5 @@
 ## Refactor
 
-- Add Stack
 - Using Text rather than String
 - Add tests
 - Use ClassyPrelude
@@ -18,3 +17,4 @@
 ## Done
 
 - Basic functionality
+- Add Stack

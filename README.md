@@ -8,10 +8,16 @@ A command-line tool to batch bump file numbering:
 04-spoon.md -> 05-spoon.md
 ```
 
-Only works with two-digit files currently.
+Only currently works with two-digit files.
 
 ## Building
 
 ```
-ghc -O3 Nump.hs
+stack build
+```
+
+## Running
+
+```
+stack exec nump
 ```

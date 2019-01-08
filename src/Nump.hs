@@ -1,4 +1,6 @@
-module Main where
+module Nump
+  ( nump
+  ) where
 
 import           Data.List        (sortBy)
 import           Data.Maybe       (isJust)
@@ -44,8 +46,8 @@ bump str = do
   putStrLn $ unlines files
 
 -- initial
-main :: IO ()
-main = do
+nump :: IO ()
+nump = do
   putStrLn "Start value:"
   value <- getLine
   if checkFormat value
