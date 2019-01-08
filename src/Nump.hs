@@ -37,7 +37,7 @@ rename dir fp = do
 listFiles :: String -> IO [FilePath]
 listFiles str = do
   dir <- getCurrentDirectory
-  files <- filter' str . sortBy (flip compare) <$> getDirectoryContents dir
+  files <- sortBy (flip compare) . filter' str <$> getDirectoryContents dir
   sequence $ rename dir <$> files
 
 bump :: String -> IO ()
