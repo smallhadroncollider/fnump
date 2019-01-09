@@ -6,7 +6,7 @@ module Nump
 import           Control.Monad      (void, when)
 import           Data.List          (sortBy)
 import           Data.Maybe         (catMaybes, isJust)
-import           System.Directory   (getCurrentDirectory, getDirectoryContents,
+import           System.Directory   (getCurrentDirectory, listDirectory,
                                      renameFile)
 import           System.Environment (getArgs)
 import           Text.Read          (readMaybe)
@@ -49,7 +49,7 @@ bump :: Int -> IO ()
 bump start = do
   dir <- getCurrentDirectory
   -- reverse order so that renaming doesn't overwrite anything
-  files <- sortBy (flip compare) <$> getDirectoryContents dir
+  files <- sortBy (flip compare) <$> listDirectory dir
   let changes = catMaybes $ rename start <$> files
   putStrLn "Make following changes?"
   putStrLn . unlines $ format <$> changes
