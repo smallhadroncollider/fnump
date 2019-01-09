@@ -1,7 +1,10 @@
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE OverloadedStrings #-}
+
+import           ClassyPrelude
+
 import           Test.Tasty
 import           Test.Tasty.HUnit
-
-import           Data.Maybe       (catMaybes)
 
 import           Nump             (rename)
 

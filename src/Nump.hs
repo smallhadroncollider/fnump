@@ -1,71 +1,80 @@
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE OverloadedStrings #-}
+
 module Nump
   ( nump
   , rename
   ) where
 
-import           Control.Monad      (void, when)
-import           Data.List          (sortBy)
-import           Data.Maybe         (catMaybes, isJust)
-import           System.Directory   (getCurrentDirectory, listDirectory,
-                                     renameFile)
-import           System.Environment (getArgs)
-import           System.IO          (hFlush, stdout)
-import           Text.Read          (readMaybe)
+import           ClassyPrelude
+import           System.Directory (getCurrentDirectory, listDirectory,
+                                   renameFile)
 
-type Renaming = (FilePath, FilePath)
+type TFilePath = Text
 
-checkFormat :: String -> Maybe Int
+-- represents filepath before and after
+type Renaming = (TFilePath, TFilePath)
+
+-- checks
+checkFormat :: Text -> Maybe Int
 checkFormat str
   | length str /= 2 = Nothing
-  | otherwise = readMaybe str :: Maybe Int
+  | otherwise = readMay str :: Maybe Int
 
-zeroPad :: Int -> String
-zeroPad i =
-  if i > 0 && i < 10
-    then "0" ++ show i
-    else show i
-
-check :: Int -> Int -> Maybe Int
-check start val =
+checkRange :: Int -> Int -> Maybe Int
+checkRange start val =
   if val >= start
     then Just val
     else Nothing
 
-biggerThan :: Int -> FilePath -> Maybe Int
-biggerThan start path = checkFormat (take 2 path) >>= check start
+include :: Int -> TFilePath -> Maybe Int
+include start path = checkFormat (take 2 path) >>= checkRange start
 
-renaming :: FilePath -> Int -> Renaming
+-- renaming
+zeroPad :: Int -> Text
+zeroPad i =
+  if i > 0 && i < 10
+    then "0" ++ tshow i
+    else tshow i
+
+renaming :: TFilePath -> Int -> Renaming
 renaming path pre = (path, zeroPad (pre + 1) ++ drop 2 path)
 
-rename :: Int -> FilePath -> Maybe Renaming
-rename start path = renaming path <$> biggerThan start path
+rename :: Int -> TFilePath -> Maybe Renaming
+rename start path = renaming path <$> include start path
 
-change :: FilePath -> Renaming -> IO ()
+change :: TFilePath -> Renaming -> IO ()
 change dir (old, new) = renameFile (ap old) (ap new)
   where
-    ap s = dir ++ "/" ++ s
+    ap s = unpack $ dir ++ "/" ++ s
 
-format :: Renaming -> String
+-- CLI output
+format :: Renaming -> Text
 format (x, y) = x ++ " -> " ++ y
 
-prompt :: String -> IO String
+prompt :: Text -> IO Text
 prompt s = do
   putStr $ s ++ ": "
   hFlush stdout -- prevents buffering
   getLine
 
+-- main function
 bump :: Int -> IO ()
 bump start = do
   dir <- getCurrentDirectory
   -- reverse order so that renaming doesn't overwrite anything
   files <- sortBy (flip compare) <$> listDirectory dir
-  let changes = catMaybes $ rename start <$> files
+  -- work out changes
+  let changes = catMaybes $ rename start . pack <$> files
+  -- confirm changes
   putStrLn . unlines $ format <$> changes
   value <- prompt "Make changes? (y/N)"
-  when (value == "y" || value == "Y") $ void . sequence $ change dir <$> changes
+  -- if confirmed, make changes
+  when (value == "y" || value == "Y") $
+    void . sequence $ change (pack dir) <$> changes
 
 -- initial
-parseArgs :: [String] -> Maybe Int
+parseArgs :: [Text] -> Maybe Int
 parseArgs [value] = checkFormat value
 parseArgs _       = Nothing
 

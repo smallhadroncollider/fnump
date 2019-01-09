@@ -1,6 +1,7 @@
 module Main where
 
-import           Nump (nump)
+import           ClassyPrelude (IO)
+import           Nump          (nump)
 
 main :: IO ()
 main = nump

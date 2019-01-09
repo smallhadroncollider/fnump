@@ -1,3 +1,4 @@
 .stack-work/
 nump.cabal
+test/data/*
 *~

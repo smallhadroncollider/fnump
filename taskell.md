@@ -1,7 +1,5 @@
 ## Refactor
 
-- Using Text rather than String
-- Use ClassyPrelude
 
 ## Features
 
@@ -21,3 +19,5 @@
     * [x] Using `take 2` all over the place
     * [x] Using `read x :: Int` all over the place
 - Should show changes before making them
+- Using Text rather than String
+- Use ClassyPrelude
