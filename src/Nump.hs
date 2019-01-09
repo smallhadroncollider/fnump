@@ -11,6 +11,8 @@ import           System.Directory   (getCurrentDirectory, listDirectory,
 import           System.Environment (getArgs)
 import           Text.Read          (readMaybe)
 
+type Renaming = (FilePath, FilePath)
+
 checkFormat :: String -> Maybe Int
 checkFormat str
   | length str /= 2 = Nothing
@@ -31,18 +33,18 @@ check start val =
 biggerThan :: Int -> FilePath -> Maybe Int
 biggerThan start path = checkFormat (take 2 path) >>= check start
 
-renaming :: FilePath -> Int -> (FilePath, FilePath)
+renaming :: FilePath -> Int -> Renaming
 renaming path pre = (path, zeroPad (pre + 1) ++ drop 2 path)
 
-rename :: Int -> FilePath -> Maybe (FilePath, FilePath)
+rename :: Int -> FilePath -> Maybe Renaming
 rename start path = renaming path <$> biggerThan start path
 
-change :: FilePath -> (FilePath, FilePath) -> IO ()
+change :: FilePath -> Renaming -> IO ()
 change dir (old, new) = renameFile (ap old) (ap new)
   where
     ap s = dir ++ "/" ++ s
 
-format :: (FilePath, FilePath) -> String
+format :: Renaming -> String
 format (x, y) = x ++ " -> " ++ y
 
 bump :: Int -> IO ()
