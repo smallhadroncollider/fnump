@@ -42,5 +42,8 @@ tests =
                "Bumps each number by 1"
                (Just ("22-blah.md", "23-blah.md"))
                (rename 03 "22-blah.md"))
+        , testCase
+            "Non-Numeric Filename"
+            (assertEqual "Nothing" Nothing (rename 05 "blah.md"))
         ]
     ]
