@@ -1,10 +1,11 @@
 module Nump
   ( nump
-  , biggerThan
+  , rename
   ) where
 
+import           Control.Monad    (void, when)
 import           Data.List        (sortBy)
-import           Data.Maybe       (isJust)
+import           Data.Maybe       (catMaybes, isJust)
 import           System.Directory
 import           Text.Read        (readMaybe)
 
@@ -19,33 +20,40 @@ zeroPad i =
     then "0" ++ show i
     else show i
 
-biggerThan :: Int -> FilePath -> Bool
-biggerThan start fp =
-  case checkFormat $ take 2 fp of
-    Nothing  -> False
-    Just val -> val >= start
+check :: Int -> Int -> Maybe Int
+check start val =
+  if val >= start
+    then Just val
+    else Nothing
 
--- bumping
-rename :: FilePath -> FilePath -> IO FilePath
-rename dir fp = do
-  let pre = zeroPad $ (read (take 2 fp) :: Int) + 1
-      end = drop 2 fp
-      new = pre ++ end
-  renameFile (dir ++ "/" ++ fp) (dir ++ "/" ++ new)
-  return new
+biggerThan :: Int -> FilePath -> Maybe Int
+biggerThan start path = checkFormat (take 2 path) >>= check start
 
-listFiles :: Int -> IO [FilePath]
-listFiles start = do
-  dir <- getCurrentDirectory
-  files <-
-    sortBy (flip compare) . filter (biggerThan start) <$>
-    getDirectoryContents dir
-  sequence $ rename dir <$> files
+renaming :: FilePath -> Int -> (FilePath, FilePath)
+renaming path pre = (path, zeroPad (pre + 1) ++ drop 2 path)
+
+rename :: Int -> FilePath -> Maybe (FilePath, FilePath)
+rename start path = renaming path <$> biggerThan start path
+
+change :: FilePath -> (FilePath, FilePath) -> IO ()
+change dir (old, new) = renameFile (ap old) (ap new)
+  where
+    ap s = dir ++ "/" ++ s
+
+format :: (FilePath, FilePath) -> String
+format (x, y) = x ++ " -> " ++ y
 
 bump :: Int -> IO ()
 bump start = do
-  files <- listFiles start
-  putStrLn $ unlines files
+  dir <- getCurrentDirectory
+  -- reverse order so that renaming doesn't overwrite anything
+  files <- sortBy (flip compare) <$> getDirectoryContents dir
+  let changes = catMaybes $ rename start <$> files
+  putStrLn "Make following changes?"
+  putStrLn . unlines $ format <$> changes
+  putStrLn "y/N:"
+  value <- getLine
+  when (value == "y" || value == "Y") $ void . sequence $ change dir <$> changes
 
 -- initial
 nump :: IO ()
