@@ -1,7 +1,7 @@
 import           Test.Tasty
 import           Test.Tasty.HUnit
 
-import           Nump             (filter')
+import           Nump             (biggerThan)
 
 main :: IO ()
 main = defaultMain tests
@@ -14,8 +14,8 @@ tests =
     (assertEqual
        "Returns just bigger than numbered paths"
        ["03-blah.md", "04-blah.md", "05-blah.md", "06-blah.md"]
-       (filter'
-          03
+       (filter
+          (biggerThan 03)
           [ "01-blah.md"
           , "02-blah.md"
           , "03-blah.md"

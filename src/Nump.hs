@@ -1,6 +1,6 @@
 module Nump
   ( nump
-  , filter'
+  , biggerThan
   ) where
 
 import           Data.List        (sortBy)
@@ -25,9 +25,6 @@ biggerThan start fp =
     Nothing  -> False
     Just val -> val >= start
 
-filter' :: Int -> [FilePath] -> [FilePath]
-filter' val = filter (biggerThan val)
-
 -- bumping
 rename :: FilePath -> FilePath -> IO FilePath
 rename dir fp = do
@@ -40,7 +37,9 @@ rename dir fp = do
 listFiles :: Int -> IO [FilePath]
 listFiles start = do
   dir <- getCurrentDirectory
-  files <- sortBy (flip compare) . filter' start <$> getDirectoryContents dir
+  files <-
+    sortBy (flip compare) . filter (biggerThan start) <$>
+    getDirectoryContents dir
   sequence $ rename dir <$> files
 
 bump :: Int -> IO ()
