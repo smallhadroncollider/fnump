@@ -9,6 +9,7 @@ import           Data.Maybe         (catMaybes, isJust)
 import           System.Directory   (getCurrentDirectory, listDirectory,
                                      renameFile)
 import           System.Environment (getArgs)
+import           System.IO          (hFlush, stdout)
 import           Text.Read          (readMaybe)
 
 type Renaming = (FilePath, FilePath)
@@ -47,16 +48,20 @@ change dir (old, new) = renameFile (ap old) (ap new)
 format :: Renaming -> String
 format (x, y) = x ++ " -> " ++ y
 
+prompt :: String -> IO String
+prompt s = do
+  putStr $ s ++ ": "
+  hFlush stdout -- prevents buffering
+  getLine
+
 bump :: Int -> IO ()
 bump start = do
   dir <- getCurrentDirectory
   -- reverse order so that renaming doesn't overwrite anything
   files <- sortBy (flip compare) <$> listDirectory dir
   let changes = catMaybes $ rename start <$> files
-  putStrLn "Make following changes?"
   putStrLn . unlines $ format <$> changes
-  putStrLn "y/N:"
-  value <- getLine
+  value <- prompt "Make changes? (y/N)"
   when (value == "y" || value == "Y") $ void . sequence $ change dir <$> changes
 
 -- initial
