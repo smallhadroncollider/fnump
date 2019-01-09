@@ -8,8 +8,10 @@ module Nump
 
 import           ClassyPrelude
 import           Data.Text        (replace)
+import           Data.Text.IO     (hPutStrLn)
 import           System.Directory (doesFileExist, getCurrentDirectory,
                                    listDirectory, renameFile)
+import           System.Exit      (exitFailure)
 
 type TFilePath = Text
 
@@ -70,6 +72,9 @@ prompt s = do
   hFlush stdout -- prevents buffering
   getLine
 
+exitWithErrorMessage :: Text -> IO ()
+exitWithErrorMessage str = hPutStrLn stderr str >> void exitFailure
+
 -- main function
 bump :: Int -> ReplaceIn -> IO ()
 bump start file = do
@@ -116,9 +121,10 @@ nump = do
   (value, file) <- parseArgs <$> getArgs
   replaceInFile <- replaceIn file
   case replaceInFile of
-    NotFound fp -> putStrLn ("File " ++ fp ++ " does not exist")
+    NotFound fp -> exitWithErrorMessage ("File " ++ fp ++ " does not exist")
     _ ->
       case value of
         Just start -> bump start replaceInFile
         Nothing ->
-          putStrLn "Invalid format: must be two digit number (e.g. 01, 22)"
+          exitWithErrorMessage
+            "Invalid format: must be two digit number (e.g. 01, 22)"
