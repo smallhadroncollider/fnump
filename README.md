@@ -19,5 +19,7 @@ stack build
 ## Running
 
 ```
-stack exec nump
+stack exec nump <value>
 ```
+
+Where `<value>` is the first two digit number you want to bump from.

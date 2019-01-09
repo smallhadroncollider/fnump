@@ -3,11 +3,13 @@ module Nump
   , rename
   ) where
 
-import           Control.Monad    (void, when)
-import           Data.List        (sortBy)
-import           Data.Maybe       (catMaybes, isJust)
-import           System.Directory
-import           Text.Read        (readMaybe)
+import           Control.Monad      (void, when)
+import           Data.List          (sortBy)
+import           Data.Maybe         (catMaybes, isJust)
+import           System.Directory   (getCurrentDirectory, getDirectoryContents,
+                                     renameFile)
+import           System.Environment (getArgs)
+import           Text.Read          (readMaybe)
 
 checkFormat :: String -> Maybe Int
 checkFormat str
@@ -56,10 +58,13 @@ bump start = do
   when (value == "y" || value == "Y") $ void . sequence $ change dir <$> changes
 
 -- initial
+parseArgs :: [String] -> Maybe Int
+parseArgs [value] = checkFormat value
+parseArgs _       = Nothing
+
 nump :: IO ()
 nump = do
-  putStrLn "Start value:"
-  value <- getLine
-  case checkFormat value of
-    Nothing -> putStrLn "Invalid format: must be two digit number (e.g. 01, 22)"
+  value <- parseArgs <$> getArgs
+  case value of
     Just start -> bump start
+    Nothing -> putStrLn "Invalid format: must be two digit number (e.g. 01, 22)"
