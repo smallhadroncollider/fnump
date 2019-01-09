@@ -4,7 +4,6 @@
 ## Features
 
 - Support different number formats
-- Update references in a given file
 
 ## In Progress
 
@@ -21,3 +20,4 @@
 - Should show changes before making them
 - Using Text rather than String
 - Use ClassyPrelude
+- Update references in a given file

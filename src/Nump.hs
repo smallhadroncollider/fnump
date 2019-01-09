@@ -7,8 +7,9 @@ module Nump
   ) where
 
 import           ClassyPrelude
-import           System.Directory (getCurrentDirectory, listDirectory,
-                                   renameFile)
+import           Data.Text        (replace)
+import           System.Directory (doesFileExist, getCurrentDirectory,
+                                   listDirectory, renameFile)
 
 type TFilePath = Text
 
@@ -48,6 +49,17 @@ change dir (old, new) = renameFile (ap old) (ap new)
   where
     ap s = unpack $ dir ++ "/" ++ s
 
+-- updating
+rep :: Text -> Renaming -> Text
+rep content (old, new) = replace old new content
+
+update :: ReplaceIn -> [Renaming] -> IO ()
+update (Requested file) changes = do
+  let path = unpack file
+  content <- decodeUtf8 <$> readFile path
+  writeFile path $ encodeUtf8 (foldl' rep content changes)
+update _ _ = return ()
+
 -- CLI output
 format :: Renaming -> Text
 format (x, y) = x ++ " -> " ++ y
@@ -59,28 +71,54 @@ prompt s = do
   getLine
 
 -- main function
-bump :: Int -> IO ()
-bump start = do
+bump :: Int -> ReplaceIn -> IO ()
+bump start file = do
   dir <- getCurrentDirectory
   -- reverse order so that renaming doesn't overwrite anything
   files <- sortBy (flip compare) <$> listDirectory dir
   -- work out changes
   let changes = catMaybes $ rename start . pack <$> files
-  -- confirm changes
-  putStrLn . unlines $ format <$> changes
-  value <- prompt "Make changes? (y/N)"
-  -- if confirmed, make changes
-  when (value == "y" || value == "Y") $
-    void . sequence $ change (pack dir) <$> changes
+  if null changes
+    then putStrLn "No changes necessary"
+      -- confirm changes
+    else do
+      putStrLn . unlines $ format <$> changes
+      value <- prompt "Make changes? (y/N)"
+      -- if confirmed, make changes
+      if value == "y" || value == "Y"
+        then do
+          void . sequence $ change (pack dir) <$> changes -- rename files
+          void $ update file changes -- update file (if given)
+        else putStrLn "Operation cancelled"
 
 -- initial
-parseArgs :: [Text] -> Maybe Int
-parseArgs [value] = checkFormat value
-parseArgs _       = Nothing
+parseArgs :: [Text] -> (Maybe Int, Maybe TFilePath)
+parseArgs [value]       = (checkFormat value, Nothing)
+parseArgs [value, file] = (checkFormat value, Just file)
+parseArgs _             = (Nothing, Nothing)
+
+data ReplaceIn
+  = Requested TFilePath
+  | NotFound TFilePath
+  | NotRequested
+
+replaceIn :: Maybe TFilePath -> IO ReplaceIn
+replaceIn (Just file) = do
+  exists <- doesFileExist (unpack file)
+  return $
+    if exists
+      then Requested file
+      else NotFound file
+replaceIn Nothing = return NotRequested
 
 nump :: IO ()
 nump = do
-  value <- parseArgs <$> getArgs
-  case value of
-    Just start -> bump start
-    Nothing -> putStrLn "Invalid format: must be two digit number (e.g. 01, 22)"
+  (value, file) <- parseArgs <$> getArgs
+  replaceInFile <- replaceIn file
+  case replaceInFile of
+    NotFound fp -> putStrLn ("File " ++ fp ++ " does not exist")
+    _ ->
+      case value of
+        Just start -> bump start replaceInFile
+        Nothing ->
+          putStrLn "Invalid format: must be two digit number (e.g. 01, 22)"

@@ -14,12 +14,19 @@ Only currently works with two-digit files.
 
 ```
 stack build
+stack install
 ```
 
 ## Running
 
+To update all files in the current directory from the prefix 03 and upwards:
+
 ```
-stack exec nump <value>
+nump 03
 ```
 
-Where `<value>` is the first two digit number you want to bump from.
+You can also automatically update references to the renamed files in a text file by adding it as the second argument:
+
+```
+nump 03 document.md
+```
