@@ -1,8 +1,8 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Nump
-  ( nump
+module Fnump
+  ( fnump
   , rename
   ) where
 
@@ -116,8 +116,8 @@ replaceIn (Just file) = do
       else NotFound file
 replaceIn Nothing = return NotRequested
 
-nump :: IO ()
-nump = do
+fnump :: IO ()
+fnump = do
   (value, file) <- parseArgs <$> getArgs
   replaceInFile <- replaceIn file
   case replaceInFile of

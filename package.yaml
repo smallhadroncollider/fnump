@@ -1,6 +1,6 @@
-name:                nump
+name:                fnump
 version:             0.1.0.0
-github:              "githubuser/nump"
+github:              "smallhadroncollider/fnump"
 license:             BSD3
 author:              "Small Hadron Collider"
 maintainer:          "mark@smallhadroncollider.com"
@@ -16,7 +16,7 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/githubuser/nump#readme>
+description:         Please see the README on GitHub at <https://github.com/smallhadroncollider/fnump#readme>
 
 default-extensions:
 - OverloadedStrings
@@ -33,7 +33,7 @@ library:
     - text
 
 executables:
-  nump:
+  fnump:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -41,10 +41,10 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - nump
+    - fnump
 
 tests:
-  nump-test:
+  fnump-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -52,6 +52,6 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - nump
+    - fnump
     - tasty
     - tasty-hunit

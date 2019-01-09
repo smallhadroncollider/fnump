@@ -6,7 +6,7 @@ import           ClassyPrelude
 import           Test.Tasty
 import           Test.Tasty.HUnit
 
-import           Nump             (rename)
+import           Fnump            (rename)
 
 main :: IO ()
 main = defaultMain tests
@@ -15,7 +15,7 @@ main = defaultMain tests
 tests :: TestTree
 tests =
   testGroup
-    "Nump"
+    "Fnump"
     [ testGroup
         "rename"
         [ testCase

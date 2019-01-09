@@ -1,4 +1,4 @@
-# Nump
+# fnump
 
 A command-line tool to batch bump file numbering:
 
@@ -22,11 +22,11 @@ stack install
 To update all files in the current directory from the prefix 03 and upwards:
 
 ```
-nump 03
+fnump 03
 ```
 
 You can also automatically update references to the renamed files in a text file by adding it as the second argument:
 
 ```
-nump 03 document.md
+fnump 03 document.md
 ```
