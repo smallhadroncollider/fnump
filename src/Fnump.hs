@@ -91,7 +91,7 @@ bump start file = do
             -- if confirmed, make changes
             if value == "y" || value == "Y"
                 then do
-                    void . sequence $ change (pack dir) <$> changes -- rename files
+                    traverse_ (change (pack dir)) changes -- rename files
                     void $ update file changes -- update file (if given)
                 else putStrLn "Operation cancelled"
 
